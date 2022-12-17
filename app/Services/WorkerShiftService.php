@@ -14,6 +14,9 @@ use SM\Backend\Topics\Managers\BackendManager;
 
 class WorkerShiftService
 {
+    public function shiftsAWorkerDidNotWork($request)
+    {
+    }
 
     /**
      * @param $request

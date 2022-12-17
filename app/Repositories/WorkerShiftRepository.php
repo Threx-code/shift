@@ -36,8 +36,13 @@ class WorkerShiftRepository implements WorkerShiftInterface
         return $this->workerShiftService->workerClockOut($request);
     }
 
-    public function getAllTheShifts($request)
+    public function listOfAllShiftForAWorker($request)
     {
-        return $this->workerShiftService->getAllTheShifts($request);
+        return $this->workerShiftService->listOfAllShiftForAWorker($request);
+    }
+
+    public function shiftsAWorkerDidNotWork($request)
+    {
+        return $this->workerShiftService->shiftsAWorkerDidNotWork($request);
     }
 }
