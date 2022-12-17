@@ -14,91 +14,53 @@ use Illuminate\Http\JsonResponse;
 
 class WorkerShiftController extends Controller
 {
-    private WorkerShiftInterface  $orderRepository;
+    public function __construct(private WorkerShiftInterface $workerShiftRepository){}
 
-    public function __construct(WorkerShiftInterface $orderRepository)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function workerClockIn(Request $request): JsonResponse
     {
-        $this->orderRepository = $orderRepository;
+        $clockedIn = $this->workerShiftRepository->workerClockIn($request);
+        return response()->json($clockedIn);
+    }
+
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function workerClockOut(Request $request): JsonResponse
+    {
+        $clockedOUt = $this->workerShiftRepository->workerClockOut($request);
+        return response()->json($clockedOUt);
     }
 
     /**
      * @param Request $request
      * @return JsonResponse
      */
-    public function getAllOrders(Request $request): JsonResponse
-    {
-        $allOrder = $this->orderRepository->getAllOrders($request);
-        return response()->json($allOrder['orders']);
-    }
-
-    /**
-     * @param Request $request
-     * @return Factory|View|Application
-     */
-    public function getAllOrderView(Request $request): Factory|View|Application
-    {
-        $orders = $this->orderRepository->getAllOrders($request);
-        $data = $orders['data'];
-        $orders = $orders['orders'];
-        return view('orders', compact('orders', 'data'));
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function topDistributors(Request $request): JsonResponse
-    {
-        $topDistributors = $this->orderRepository->topDistributors($request);
-        return response()->json($topDistributors);
-    }
-
-    /**
-     * @param Request $request
-     * @return Factory|View|Application
-     */
-    public function getTopDistributorsView(Request $request): Factory|View|Application
-    {
-        $distributors = $this->orderRepository->topDistributors($request);
-        return view('distributors', compact('distributors', ));
-    }
-
-
-    public function autocomplete(Request $request)
+    public function listOfAllShiftForAWorker(Request $request): JsonResponse
     {
         if(Autocomplete::validate($request)) {
-            return $this->orderRepository->autocomplete($request);
+            return $this->workerShiftRepository->listOfAllShiftForAWorker($request);
         }
+        return response()->json();
     }
 
 
     /**
      * @param Request $request
-     * @return Application|Factory|View|void
+     * @return JsonResponse
      */
-    public function search(Request $request)
+    public function shiftsAWorkerDidNotWork(Request $request): JsonResponse
     {
         if(AllOrderValidator::validate($request)){
-            $orders = $this->orderRepository->getAllOrders($request);
-            $data = $orders['data'];
-            $orders = $orders['orders'];
-            return view('search', compact('orders', 'data'));
+            $shiftsWorkerDidNotWork = $this->workerShiftRepository->shiftsAWorkerDidNotWork($request);
+            return response()->json($shiftsWorkerDidNotWork);
         }
-
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse|void
-     */
-    public function search2(Request $request)
-    {
-        if(AllOrderValidator::validate($request)){
-            $orders = $this->orderRepository->getAllOrders($request);
-            $data = $orders['data'];
-            $orders = $orders['orders'];
-            return response()->json($orders);
-        }
+        return response()->json();
 
     }
 
