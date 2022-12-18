@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->dateTime('clock_in');
-            $table->dateTime('clock_out');
+            $table->dateTime('clock_out')->nullable();
             $table->timestamps();
         });
     }

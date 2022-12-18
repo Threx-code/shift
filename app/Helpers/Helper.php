@@ -42,7 +42,20 @@ class Helper
      */
     public function workerDailyCheck($request): mixed
     {
-       return WorkerShift::where('user_id', $request->user_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
+       return WorkerShift::where('user_id', $request->user_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function workerClockIn($request): mixed
+    {
+        $clockIn = $this->clockInTime();
+        return WorkerShift::create([
+            'user_id' => $request->user_id,
+            'clock_in' => Carbon::now(),
+        ]);
     }
 
 

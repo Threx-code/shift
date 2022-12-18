@@ -43,7 +43,22 @@ class RepositoryValidator
     {
         $errorResponse = response()->json([
             'error' => 'Daily Work Limit Reached',
-            'message' => $message . 'You have reached your daily limit of 100k keywords.',
+            'message' => $message,
+        ], 422);
+
+        throw new HttpResponseException($errorResponse);
+    }
+
+
+    /**
+     * @param $message
+     * @return void
+     */
+    public static function error($message): void
+    {
+        $errorResponse = response()->json([
+            'error' => 'Something went wrong',
+            'message' => $message,
         ], 422);
 
         throw new HttpResponseException($errorResponse);

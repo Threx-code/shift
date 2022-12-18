@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class WorkerShift extends Model
 {
     use HasFactory;
+
+    protected $guarded = [];
 }
