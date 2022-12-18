@@ -46,23 +46,21 @@ class WorkerShiftService
     public function workerClockIn($request): array
     {
         $helper = new Helper();
-        $clockInDate = Carbon::now();
-        $clockIn = $helper->clockInTime();
         $alreadyWorked = $helper->workerDailyCheck($request);
-
         if($alreadyWorked->clock_out){
             $message = "You have already worked between {$alreadyWorked->clock_in} and {$alreadyWorked->clock_out}";
             return RepositoryValidator::DailyWorkerLimit($message);
         }
         if($alreadyWorked->clock_in){
-            $message = "You have already clocked in {$alreadyWorked->clock_in}";
+            $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8);
+            $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$clockOut}";
             return RepositoryValidator::DailyWorkerLimit($message);
         }
 
         if($helper->workerClockIn($request)){
             return ['clock_in' => true];
         }
-        $message = 'Unabled to clock in';
+        $message = 'Unable to clock in';
         return RepositoryValidator::DailyWorkerLimit($message);
 
     }
