@@ -2,17 +2,47 @@
 
 namespace App\Helpers;
 
+use App\Models\WorkerShift;
+use Carbon\Carbon;
+
 class Helper
 {
 
-    public function shiftAlreadyStarted()
+    /**
+     * @return array|string[]
+     */
+    public function clockInTime(): array
     {
-        //todo
+        $clockInHour = strtotime(Carbon::now()->format('H:i'));
+        foreach(DailyWorkRound::WORKSHIFT as $key => $workRound){
+            if($clockInHour >= strtotime($workRound[0]) && $clockInHour <=  strtotime($workRound[1])){
+                return $workRound;
+            }
+        }
+        return [];
     }
 
-    public function workerDailyCheck()
+    /**
+     * @return array|string[]
+     */
+    public function shiftAlreadyStarted(): array
     {
-       //todo
+        $clockInHour = strtotime(Carbon::now()->format('H:i'));
+        foreach(DailyWorkRound::WORKSHIFT as $key => $workRound){
+            if($clockInHour >= strtotime($workRound[0]) && $clockInHour <=  strtotime($workRound[1])){
+                return $workRound;
+            }
+        }
+        return [];
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function workerDailyCheck($request): mixed
+    {
+       return WorkerShift::where('user_id', $request->user_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->count();
     }
 
 

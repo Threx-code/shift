@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Helpers\DailyWorkRound;
 use App\Helpers\KeywordProcessingHelper;
 use App\Helpers\Helper;
 use App\Models\Orders;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use App\Validators\RepositoryValidator;
@@ -43,33 +45,10 @@ class WorkerShiftService
      */
     public function workerClockIn($request): array
     {
-        $data = [];
-        $orders = $this->allOrders($request);
-        foreach($orders as $key => $order){
-            $distributor = $this->getDistributor($order->user->referred_by ?? null);
-            $data[$key]['invoice'] = $order->invoice_number;
-            $data[$key]['purchaser'] = $order->user->first_name . ' ' . $order->user->last_name;
-            $data[$key]['distributor'] = '';
-            if(!empty(json_decode($distributor, true))){
-                $data[$key]['distributor'] = $distributor[0]->first_name  . ' '  . $distributor[0]->last_name;
-            }
-            $data[$key]['referred_distributors'] = 0;
-            if(!empty(json_decode($distributor, true))){
-                $data[$key]['referred_distributors'] = $this->referredDistributors($distributor[0]->id, $order->order_date);
-            }
-            $data[$key]['order_date'] = $order->order_date;
-            $data[$key]['total'] = array_sum(array_column(array_column(json_decode($order->orderItem), 'product'), 'price')) * array_sum(array_column(json_decode($order->orderItem), 'qantity'));
-            $distributorCommissions = (new Helper())->getDistributorPercentage($data[$key]['referred_distributors'], $data[$key]['total'], $order->userCategory->category_id);
-            $data[$key]['percentage'] = $distributorCommissions['percentage'] . "%";
-            $data[$key]['commission'] = $distributorCommissions['commission'];
-            $data[$key]['orderItem'] = $order->orderItem;
+        $clockInDate = Carbon::now()->format('Y-m-d');
+        $clockIn = (new Helper())->clockInTime();
 
-        }
 
-        return [
-            'data' => $data,
-            'orders' => $orders
-            ];
     }
 
     /**

@@ -20,11 +20,11 @@ use App\Http\Controllers\Api\WorkerShiftController;
 
 
 Route::middleware([])->name('api')
-    ->prefix('order')
+    ->prefix('worker/shift')
     ->group(function(){
-            Route::get("all-orders", [WorkerShiftController::class, 'getAllOrders'])->name('all-orders');
-            Route::get('top-distributors', [WorkerShiftController::class, 'topDistributors'])->name('top-distributors');
-            Route::post('search', [WorkerShiftController::class, 'search'])->name('search');
-
+            Route::post("clock-in", [WorkerShiftController::class, 'workerClockIn'])->name('clock-in');
+            Route::post('clock-out', [WorkerShiftController::class, 'workerClockOut'])->name('clock-out');
+            Route::post('work-days', [WorkerShiftController::class, 'listOfAllShiftForAWorker'])->name('work-days');
+            Route::post('absent-days', [WorkerShiftController::class, 'shiftsAWorkerDidNotWork'])->name('absent-days');
         }
     );

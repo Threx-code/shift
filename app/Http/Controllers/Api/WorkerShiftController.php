@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Validators\Request\AllOrderValidator;
 use App\Validators\Request\Autocomplete;
+use App\Validators\Request\WorkerClockInValidator;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -22,8 +23,11 @@ class WorkerShiftController extends Controller
      */
     public function workerClockIn(Request $request): JsonResponse
     {
-        $clockedIn = $this->workerShiftRepository->workerClockIn($request);
-        return response()->json($clockedIn);
+        if(WorkerClockInValidator::validate($request)) {
+            $clockedIn = $this->workerShiftRepository->workerClockIn($request);
+            return response()->json($clockedIn);
+        }
+        return response()->json();
     }
 
 
