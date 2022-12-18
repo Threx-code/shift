@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Helpers\DailyWorkRound;
-use App\Helpers\KeywordProcessingHelper;
 use App\Helpers\Helper;
 use App\Models\Orders;
 use App\Models\User;
@@ -11,8 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use App\Validators\RepositoryValidator;
-use SM\Backend\KeywordList\Managers\ListManager;
-use SM\Backend\Topics\Managers\BackendManager;
+
 
 class WorkerShiftService
 {
@@ -41,27 +39,27 @@ class WorkerShiftService
 
     /**
      * @param $request
-     * @return array
+     * @return bool[]|null
      */
-    public function workerClockIn($request): array
+    public function workerClockIn($request): ?array
     {
         $helper = new Helper();
         $alreadyWorked = $helper->workerDailyCheck($request);
         if($alreadyWorked->clock_out){
             $message = "You have already worked between {$alreadyWorked->clock_in} and {$alreadyWorked->clock_out}";
-            return RepositoryValidator::DailyWorkerLimit($message);
+            RepositoryValidator::DailyWorkerLimit($message);
         }
         if($alreadyWorked->clock_in){
             $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8);
             $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$clockOut}";
-            return RepositoryValidator::DailyWorkerLimit($message);
+            RepositoryValidator::DailyWorkerLimit($message);
         }
 
         if($helper->workerClockIn($request)){
             return ['clock_in' => true];
         }
         $message = 'Unable to clock in';
-        return RepositoryValidator::DailyWorkerLimit($message);
+        RepositoryValidator::DailyWorkerLimit($message);
 
     }
 
