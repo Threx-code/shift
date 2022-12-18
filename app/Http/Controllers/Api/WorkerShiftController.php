@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Validators\Request\WorkerAllShiftValidator;
 use App\Validators\Request\WorkerClockInValidator;
 use App\Validators\Request\WorkerClockOutValidator;
 use Illuminate\Http\Request;
@@ -46,8 +47,11 @@ class WorkerShiftController extends Controller
      */
     public function listOfAllShiftForAWorker(Request $request): JsonResponse
     {
-        return $this->workerShiftRepository->listOfAllShiftForAWorker($request);
-        //return response()->json();
+        if(WorkerAllShiftValidator::validate($request)) {
+            $workerShifts = $this->workerShiftRepository->listOfAllShiftForAWorker($request);
+            return response()->json($workerShifts);
+        }
+        return response()->json();
     }
 
 

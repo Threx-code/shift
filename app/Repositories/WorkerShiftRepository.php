@@ -19,9 +19,9 @@ class WorkerShiftRepository implements WorkerShiftInterface
 
     /**
      * @param $request
-     * @return array
+     * @return bool[]|null
      */
-    public function workerClockIn($request): array
+    public function workerClockIn($request): ?array
     {
         return $this->workerShiftService->workerClockIn($request);
     }
@@ -29,13 +29,17 @@ class WorkerShiftRepository implements WorkerShiftInterface
 
     /**
      * @param $request
-     * @return mixed
+     * @return bool[]|null
      */
-    public function workerClockOut($request): mixed
+    public function workerClockOut($request): ?array
     {
         return $this->workerShiftService->workerClockOut($request);
     }
 
+    /**
+     * @param $request
+     * @return mixed
+     */
     public function listOfAllShiftForAWorker($request)
     {
         return $this->workerShiftService->listOfAllShiftForAWorker($request);

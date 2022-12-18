@@ -13,7 +13,7 @@ class ValidatorResponse
     {
         $errorResponse = response()->json([
             'error' => 'The given data was invalid',
-            'message' => $error,
+            'message' => $error->first(),
         ], 422);
 
         throw new HttpResponseException($errorResponse);

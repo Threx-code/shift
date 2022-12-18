@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\Helper;
 use App\Models\User;
+use App\Models\WorkerShift;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Validators\RepositoryValidator;
@@ -11,10 +12,6 @@ use App\Validators\RepositoryValidator;
 
 class WorkerShiftService
 {
-    public function shiftsAWorkerDidNotWork($request)
-    {
-    }
-
     /**
      * @param $request
      * @return bool[]|null
@@ -49,8 +46,9 @@ class WorkerShiftService
         $alreadyWorked = $helper->workerDailyCheck($request);
         if($alreadyWorked) {
             $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
-            if(strtotime($clockOut) >= strtotime(Carbon::now()->format('H:i'))){
-                $alreadyWorked->clock_out = $helper->clockInTime()[1];
+
+            if(strtotime($clockOut) <= strtotime(Carbon::now()->format('H:i'))){
+                $alreadyWorked->clock_out = $clockOut;
                 $alreadyWorked->save();
                 return ['clock_out' => true];
             }
@@ -60,20 +58,104 @@ class WorkerShiftService
         RepositoryValidator::error($message);
     }
 
-    /**
-     * @param $referredBy
-     * @param $dateReferred
-     * @return mixed
-     */
-    private function referredDistributors($referredBy, $dateReferred): mixed
+
+    public function dailyShift($workerShifts)
     {
-        return User::where('referred_by', $referredBy)->whereDate('enrolled_date', '<=', date($dateReferred))->count();
+        return $workerShifts->orderBy('created_at', 'DESC')->get();
+    }
+
+    public function weeklyShift($workerShifts, $request)
+    {
+        $sevenDays = 60 * 60 * 24 * 7;
+        $endDate = date('Y-m-d', (strtotime($request->end_date) - ((strtotime($request->end_date) - strtotime($request->start_date)) - $sevenDays)));
+        return $workerShifts->whereBetween('created_at', [$request->start_date, $endDate])
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format($this->groupFormat($request->type));
+            });
     }
 
 
-    public function getAllTheShifts($request)
+    public function monthlyShift($workerShifts, $request)
     {
+        $weekArray = ['week1' => 0, 'week2' => 0, 'week3' => 0, 'week4' => 0, 'week5' => 0];
+        $scoreArray = $var = [];
+        $i = 1;
 
+        $data = $workerShifts->whereMonth('created_at', $request->month)
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format($this->groupFormat($request->type));
+            });
+
+        $useKey = array_keys($data->toArray());
+        foreach($useKey as $key){
+            if(in_array($key, $useKey, true)){
+                $var[] = $data[$key];
+            }
+            $scoreArray['week' . $i] = $var;
+            $i++;
+        }
+
+        return array_merge($weekArray, $scoreArray);
+    }
+
+
+    public function yearly($workerShifts, $request)
+    {
+        $monthArray = ['Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0, 'May' => 0, 'Jun' => 0, 'Jul' => 0, 'Aug' => 0, 'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0,];
+        $scoreArray = $var = [];
+
+        $data = $workerShifts->whereYear('created_at', $request->year)
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format($this->groupFormat($request->type));
+            });
+
+        $useKey = array_keys($data->toArray());
+        foreach($useKey as $key){
+            if(in_array($key, $useKey, true)){
+                $var[] = $data[$key];
+            }
+            $scoreArray[$key] = $var;
+        }
+
+        return array_merge($monthArray, $scoreArray);
+    }
+
+    public function listOfAllShiftForAWorker($request)
+    {
+        $workerShifts = WorkerShift::where('user_id', $request->user_id);
+        switch (strtolower($request->type)){
+            case 'daily':
+                return $this->dailyShift($workerShifts);
+            case 'weekly':
+                return $this->weeklyShift($workerShifts, $request);
+            case 'monthly':
+                return $this->monthlyShift($workerShifts, $request);
+            case 'yearly':
+                return $this->yearly($workerShifts, $request);
+        }
+    }
+
+    /**
+     * @param $type
+     * @return string
+     */
+    public function groupFormat($type): string
+    {
+        return match (strtolower($type)){
+           '','daily', 'weekly' => 'l',
+           'monthly'=> 'W',
+            'yearly' => 'M'
+        };
+    }
+
+    public function shiftsAWorkerDidNotWork($request)
+    {
     }
 
     /**
@@ -82,8 +164,8 @@ class WorkerShiftService
      */
     private function filterByDate($date): string
     {
-        if(!empty($date['from']) && !empty($date['to'])) {
-            $orderDate = "order_date between '{$date['from']}' AND '{$date['to']}'";
+        if(!empty($date['start_date']) && !empty($date['end_date'])) {
+            $orderDate = "created_at between '{$date['start_date']}' AND '{$date['end_date']}'";
         }
         return $orderDate ?? 'id IS NOT NULL';
     }
