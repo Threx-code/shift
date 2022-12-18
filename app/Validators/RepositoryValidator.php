@@ -24,11 +24,11 @@ class RepositoryValidator
     /**
      * @return mixed
      */
-    public static function dataDoesNotExist(): mixed
+    public static function dailyWorkerClockOut($time): mixed
     {
         $errorResponse = response()->json([
-            'error' => 'Data Not Found',
-            'message' => 'The given data does not exist',
+            'error' => 'Clock Out Time',
+            'message' => 'Your clock out time is ' . $time,
         ], 404);
 
         throw new HttpResponseException($errorResponse);
@@ -39,7 +39,7 @@ class RepositoryValidator
      * @param $message
      * @return void
      */
-    public static function DailyWorkerLimit($message): void
+    public static function dailyWorkerLimit($message): void
     {
         $errorResponse = response()->json([
             'error' => 'Daily Work Limit Reached',

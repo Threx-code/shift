@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('worker_shifts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->dateTime('clock_in');
-            $table->dateTime('clock_out')->nullable();
+            $table->string('clock_in', 10);
+            $table->string('clock_out', 10)->nullable();
             $table->timestamps();
         });
     }

@@ -25,5 +25,4 @@ class WorkerClockInValidator
         }
         return true;
     }
-
 }

@@ -54,7 +54,7 @@ class Helper
         $clockIn = $this->clockInTime();
         return WorkerShift::create([
             'user_id' => $request->user_id,
-            'clock_in' => Carbon::now(),
+            'clock_in' => $clockIn[0],
         ]);
     }
 

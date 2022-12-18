@@ -6,9 +6,8 @@ use App\Validators\ValidatorResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class AllOrderValidator
+class WorkerClockOutValidator
 {
-
     /**
      * @param Request $request
      * @return bool|mixed
@@ -17,8 +16,7 @@ class AllOrderValidator
     {
         $validator = Validator::make(
             $request->all(), [
-                'from_date' => ['nullable', 'date', 'before:to_date'],
-                 'to_date' => ['nullable', 'date', 'after:from_date']
+                'user_id' => ['required', 'integer'],
             ]
         );
 
@@ -27,5 +25,4 @@ class AllOrderValidator
         }
         return true;
     }
-
 }
