@@ -53,17 +53,4 @@ class WorkerShiftController extends Controller
         }
         return response()->json();
     }
-
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function shiftsAWorkerDidNotWork(Request $request): JsonResponse
-    {
-        $shiftsWorkerDidNotWork = $this->workerShiftRepository->shiftsAWorkerDidNotWork($request);
-        return response()->json($shiftsWorkerDidNotWork);
-        //return response()->json();
-    }
-
 }
