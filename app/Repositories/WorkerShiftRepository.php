@@ -38,15 +38,11 @@ class WorkerShiftRepository implements WorkerShiftInterface
 
     /**
      * @param $request
-     * @return mixed
+     * @return array|int[]|mixed|null
      */
-    public function listOfAllShiftForAWorker($request)
+    public function listOfAllShiftForAWorker($request): mixed
     {
         return $this->workerShiftService->listOfAllShiftForAWorker($request);
     }
 
-    public function shiftsAWorkerDidNotWork($request)
-    {
-        return $this->workerShiftService->shiftsAWorkerDidNotWork($request);
-    }
 }

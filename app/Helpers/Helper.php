@@ -23,20 +23,6 @@ class Helper
     }
 
     /**
-     * @return array|string[]
-     */
-    public function shiftAlreadyStarted(): array
-    {
-        $clockInHour = strtotime(Carbon::now()->format('H:i'));
-        foreach(DailyWorkRound::WORKSHIFT as $key => $workRound){
-            if($clockInHour >= strtotime($workRound[0]) && $clockInHour <=  strtotime($workRound[1])){
-                return $workRound;
-            }
-        }
-        return [];
-    }
-
-    /**
      * @param $request
      * @return mixed
      */
@@ -58,47 +44,90 @@ class Helper
         ]);
     }
 
-
+    /**
+     * @param $request
+     * @return mixed
+     */
+    private function getWorkerShift($request): mixed
+    {
+        return WorkerShift::where('user_id', $request->user_id);
+    }
 
     /**
-     * @param $referredDistributors
-     * @param $price
-     * @param $categoryId
+     * @param $request
+     * @return mixed
+     */
+    public function dailyShift($request): mixed
+    {
+        return $this->getWorkerShift($request)->orderBy('created_at', 'DESC')->get();
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function weeklyShift($request): mixed
+    {
+        $sevenDays = 60 * 60 * 24 * 7;
+        $endDate = date('Y-m-d', (strtotime($request->end_date) - ((strtotime($request->end_date) - strtotime($request->start_date)) - $sevenDays)));
+        return $this->getWorkerShift($request)->whereBetween('created_at', [$request->start_date, $endDate])
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format(DailyWorkRound::groupFormat($request->type));
+            });
+    }
+
+    /**
+     * @param $request
      * @return array|int[]
      */
-    public function getDistributorPercentage($referredDistributors, $price, $categoryId): array
+    public function monthlyShift($request): array
     {
-        if($categoryId == 2){
-            return [
-                'percentage' => 0,
-                'commission' => 0
-            ];
+        $scoreArray = $var = [];
+        $i = 1;
+        $data = $this->getWorkerShift($request)->whereMonth('created_at', $request->month)
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format(DailyWorkRound::groupFormat($request->type));
+            });
+
+        $useKey = array_keys($data->toArray());
+        foreach($useKey as $key){
+            if(in_array($key, $useKey, true)){
+                $var[] = $data[$key];
+            }
+            $scoreArray['week' . $i] = $var;
+            $i++;
         }
-        $referredDistributors = trim($referredDistributors);
 
-        switch ($referredDistributors){
-            case ($referredDistributors  === 0 ):
-                $percentage = 5;
-                break;
-            case ($referredDistributors  >= 5 && $referredDistributors <= 10 ):
-                $percentage = 10;
-                break;
-            case ($referredDistributors  >= 11 && $referredDistributors <= 20 ):
-                $percentage = 15;
-                break;
-            case ($referredDistributors  >= 21 && $referredDistributors <= 30 ):
-                $percentage = 20;
-                break;
-            case ($referredDistributors > 30):
-                $percentage = 30;
-                break;
-            default:
-                $percentage = 5;
-        };
-
-        return [
-            'percentage' => $percentage,
-            'commission' =>  round(($percentage  / 100) * $price , 2)
-        ];
+        return array_merge(DailyWorkRound::$weekArray, $scoreArray);
     }
+
+    /**
+     * @param $request
+     * @return array|int[]
+     */
+    public function yearly($request): array
+    {
+        $scoreArray = $var = [];
+        $data = $this->getWorkerShift($request)->whereYear('created_at', $request->year)
+            ->orderBy('created_at', 'DESC')
+            ->get()
+            ->groupBy(function ($date) use($request) {
+                return Carbon::parse($date->created_at)->format(DailyWorkRound::groupFormat($request->type));
+            });
+
+        $useKey = array_keys($data->toArray());
+        foreach($useKey as $key){
+            if(in_array($key, $useKey, true)){
+                $var[] = $data[$key];
+            }
+            $scoreArray[$key] = $var;
+        }
+
+        return array_merge(DailyWorkRound::$monthArray, $scoreArray);
+    }
+
 }
