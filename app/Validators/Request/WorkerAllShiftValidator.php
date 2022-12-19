@@ -16,14 +16,23 @@ class WorkerAllShiftValidator
      */
     public static function validate(Request $request): mixed
     {
+        $type = $request->type;
         $validator = Validator::make(
             $request->all(), [
                 'user_id' => ['required', 'integer'],
-                'start_date' => ['nullable', 'required_if:type,weekly', new RequiredIf(function () {
-                    return \request()->input('end_date') != null;
-                }), 'date'],
-                'end_date' => ['nullable', 'after:start_date', 'date'],
-                'type' => ['nullable',  Rule::in(['daily', 'weekly', 'monthly', 'yearly'])]
+                'type' => ['required',  Rule::in(['daily', 'weekly', 'monthly', 'yearly'])],
+                'start_date' => ['nullable', new RequiredIf(function () use($type) {
+                    return $type == 'weekly';
+                }), 'before:end_date', 'date'],
+                'end_date' => ['nullable', new RequiredIf(function () use($type) {
+                    return $type == 'weekly';
+                }), 'after:start_date', 'date'],
+                'month' => ['nullable', new RequiredIf(function () use ($type) {
+                    return $type == 'monthly';
+                }), 'integer'],
+                'year' => ['nullable', new RequiredIf(function () use ($type) {
+                    return $type == 'yearly';
+                }), 'integer']
             ]
         );
 
