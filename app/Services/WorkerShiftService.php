@@ -69,17 +69,12 @@ class WorkerShiftService
      */
     public function listOfAllShiftForAWorker($request): mixed
     {
-        switch (strtolower($request->type)){
-            case 'daily':
-                return $this->helper->dailyShift($request);
-            case 'weekly':
-                return $this->helper->weeklyShift($request);
-            case 'monthly':
-                return $this->helper->monthlyShift($request);
-            case 'yearly':
-                return $this->helper->yearly($request);
-        }
-        return [];
+        return match (strtolower($request->type)){
+            'daily' => $this->helper->dailyShift($request),
+            'weekly' => $this->helper->weeklyShift($request),
+            'monthly' => $this->helper->monthlyShift($request),
+            'yearly' => $this->helper->yearly($request),
+        };
     }
 
 }
