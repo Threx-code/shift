@@ -6,7 +6,6 @@ use App\Helpers\Helper;
 use Carbon\Carbon;
 use App\Validators\RepositoryValidator;
 
-
 class WorkerShiftService
 {
     private Helper $helper;
