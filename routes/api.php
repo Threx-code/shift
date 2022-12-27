@@ -22,9 +22,8 @@ use App\Http\Controllers\Api\WorkerShiftController;
 Route::middleware([])->name('api')
     ->prefix('worker/shift')
     ->group(function(){
-            Route::post("clock-in", [WorkerShiftController::class, 'workerClockIn'])->name('clock-in');
-            Route::post('clock-out', [WorkerShiftController::class, 'workerClockOut'])->name('clock-out');
-            Route::post('work-days', [WorkerShiftController::class, 'listOfAllShiftForAWorker'])->name('work-days');
-            Route::post('absent-days', [WorkerShiftController::class, 'shiftsAWorkerDidNotWork'])->name('absent-days');
+            Route::post("clock-in", [WorkerShiftController::class, 'workerClockIn'])->name('.clock-in');
+            Route::post('clock-out', [WorkerShiftController::class, 'workerClockOut'])->name('.clock-out');
+            Route::post('work-days', [WorkerShiftController::class, 'listOfAllShiftForAWorker'])->name('.work-days');
         }
     );
