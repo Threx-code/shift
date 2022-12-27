@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Helpers\Helper;
 
 class WorkerShiftClockInTest extends TestCase
 {
@@ -31,15 +32,16 @@ class WorkerShiftClockInTest extends TestCase
             ]);
     }
 
-    public function test_should_return_if_the_user_already_clock_in_today()
+    public function test_should_fail_if_the_user_already_clock_in_today()
     {
+        $helper = new Helper();
         $response = $this->postJson(route("api.clock-in"), [
             'user_id' => 34
         ]);
         $response->assertStatus(422)
             ->assertJson([
                 "error" => "Daily Work Limit Reached",
-                "message" => "You have already clocked in 16:01, your clock out is 00:01"
+                "message" => "You have already clocked in {$helper->clockInTime()[0]}, your clock out is {$helper->clockInTime()[1]}"
             ]);
     }
 

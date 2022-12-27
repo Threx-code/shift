@@ -22,7 +22,7 @@ class WorkerShiftService
         $alreadyWorked = $this->helper->workerDailyCheck($request);
         if($alreadyWorked) {
             if ($alreadyWorked->clock_out) {
-                $message = "You have already worked between {$alreadyWorked->clock_in} and {$alreadyWorked->clock_out}";
+                $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$alreadyWorked->clock_out}";
                 RepositoryValidator::dailyWorkerLimit($message);
             }
             if ($alreadyWorked->clock_in) {
@@ -51,6 +51,9 @@ class WorkerShiftService
             $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
 
             if(strtotime($clockOut) <= strtotime(Carbon::now()->format('H:i'))){
+                if($clockOut == '00:01'){
+                    $clockOut = '24:00';
+                }
                 $alreadyWorked->clock_out = $clockOut;
                 $alreadyWorked->save();
                 return ['clock_out' => true];
