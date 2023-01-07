@@ -2,11 +2,30 @@
 
 namespace App\Helpers;
 
+use App\Models\ShiftManager;
 use App\Models\WorkerShift;
 use Carbon\Carbon;
 
 class Helper
 {
+
+    private ShiftManager $shiftManager;
+
+    public function __construct(){
+        $this->shiftManager =  new ShiftManager();
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function shiftTime($shift): array
+    {
+        return match (strtolower($shift)){
+            'morning'   => DailyWorkRound::WORKSHIFT[1],
+            'afternoon' => DailyWorkRound::WORKSHIFT[2],
+            'evening'   => DailyWorkRound::WORKSHIFT[3]
+        };
+    }
 
     /**
      * @return array|string[]
@@ -68,14 +87,24 @@ class Helper
      */
     public function weeklyShift($request): mixed
     {
-        $sevenDays = 60 * 60 * 24 * 7;
-        $endDate = date('Y-m-d', (strtotime($request->end_date) - ((strtotime($request->end_date) - strtotime($request->start_date)) - $sevenDays)));
+        $endDate = $this->sevenDays($request->start_date, $request->end_date, 1);
         return $this->getWorkerShift($request)->whereBetween('created_at', [$request->start_date, $endDate])
             ->orderBy('created_at', 'DESC')
             ->get()
             ->groupBy(function ($date) use($request) {
                 return Carbon::parse($date->created_at)->format(DailyWorkRound::groupFormat($request->type));
             });
+    }
+
+
+    /**
+     * @param $end_date
+     * @return string
+     */
+    public function sevenDays($start_date, $end_date, $deter = 0): string
+    {
+        $sevenDays = 60 * 60 * 24 * (6 + $deter);
+        return date('Y-m-d', (strtotime($end_date) - ((strtotime($end_date) - strtotime($start_date)) - $sevenDays)));
     }
 
     /**
@@ -128,6 +157,53 @@ class Helper
         }
 
         return array_merge(DailyWorkRound::$monthArray, $scoreArray);
+    }
+
+    /**
+     * @param $shift
+     * @return string
+     */
+    public function shiftToTime($shift): string
+    {
+        return Carbon::parse($shift)->format('H:i:s');
+    }
+
+    /**
+     * @param $date
+     * @param string $format
+     * @return string
+     */
+    public function parseDate($date, string $format = 'Y-m-d H:i:s'): string
+    {
+        return Carbon::parse($date)->format($format);
+    }
+
+    /**
+     * @param $request
+     * @return bool[]
+     */
+    public function shiftManager($request): array
+    {
+        $endDate = $this->sevenDays($request->start_date, $request->end_date);
+        $shift = $this->shiftTime($request->shift);
+        $this->shiftManager->user_id = $request->user_id;
+        $this->shiftManager->manager_id = $request->manager_id;
+        $this->shiftManager->clock_in = $shift[0];
+        $this->shiftManager->clock_out = $shift[1];
+        $this->shiftManager->start_date = $request->start_date . ' '. $this->shiftToTime($shift[0]);
+        $this->shiftManager->end_date = $endDate . ' ' . $this->shiftToTime($shift[1]);
+        $this->shiftManager->save();
+
+        return ['shift_created' => true];
+    }
+
+    public function shiftAlreadyCreated($request)
+    {
+        $endDate = $this->sevenDays($request->start_date, $request->end_date);
+        $shift = $this->shiftManager::where('user_id', $request->user_id)->whereBetween('start_date', [$request->start_date, $endDate])->first();
+        if($shift){
+            return ['status' => "This user shift has been created for {$this->parseDate($shift->start_date)} to  {$this->parseDate($shift->end_date)}"];
+        }
     }
 
 }

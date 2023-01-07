@@ -53,9 +53,11 @@ class WorkerShiftClockInTest extends TestCase
         $response = $this->postJson(route("api.clock-in"), [
             'user_id' => random_int(2, 1000)
         ]);
-        $response->assertOk()->assertJson([
-                "clock_in" => true
-        ]);
+        $response->assertStatus(422)
+            ->assertJson([
+                "error" => "Something went wrong",
+                "message" => "This user hasn't clocked in today"
+            ]);
     }
 
 }

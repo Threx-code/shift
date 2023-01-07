@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Models\ShiftManager;
 use Carbon\Carbon;
 use App\Validators\RepositoryValidator;
 
@@ -77,6 +78,16 @@ class WorkerShiftService
             'monthly' => $this->helper->monthlyShift($request),
             'yearly' => $this->helper->yearly($request),
         };
+    }
+
+    public function shiftManager($request, $shifts = [])
+    {
+        $shifts = $this->helper->shiftAlreadyCreated($request);
+        if(!$shifts){
+            $shifts = $this->helper->shiftManager($request);
+        }
+        return $shifts;
+
     }
 
 }

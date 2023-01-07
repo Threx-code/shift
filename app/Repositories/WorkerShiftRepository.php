@@ -45,4 +45,8 @@ class WorkerShiftRepository implements WorkerShiftInterface
         return $this->workerShiftService->listOfAllShiftForAWorker($request);
     }
 
+    public function shiftManager($request)
+    {
+        return $this->workerShiftService->shiftManager($request);
+    }
 }
