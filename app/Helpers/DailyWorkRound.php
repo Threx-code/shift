@@ -6,8 +6,8 @@ class DailyWorkRound
 {
     public const WORKSHIFT = [
         1 => ['0:00', '8:00'],
-        2 => ['8:01', '16:00'],
-        3 => ['16:01', '24:00']
+        2 => ['8:00', '16:00'],
+        3 => ['16:00', '24:00']
     ];
 
     public static array $weekArray = ['week1' => 0, 'week2' => 0, 'week3' => 0, 'week4' => 0, 'week5' => 0];

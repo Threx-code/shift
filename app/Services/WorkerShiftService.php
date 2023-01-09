@@ -21,17 +21,18 @@ class WorkerShiftService
      */
     public function workerClockIn($request): ?array
     {
-        $userCanWork = $this->helper->workWithinTimeFrame($request->user_id);
-        if(!$userCanWork){
-            $message = "You cannot working this time contact your manager";
-            RepositoryValidator::error($message);
-        }
 
         $alreadyWorked = $this->helper->workerDailyCheck($request);
         if($alreadyWorked) {
             $clockOut = $alreadyWorked->clock_out ??  Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
             $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$clockOut}";
             RepositoryValidator::dailyWorkerLimit($message);
+        }
+
+        $userCanWork = $this->helper->workWithinTimeFrame($request->user_id);
+        if(!$userCanWork){
+            $message = "You cannot work this time contact your manager";
+            RepositoryValidator::error($message);
         }
 
         if($this->helper->workerClockIn($request)){
@@ -51,13 +52,10 @@ class WorkerShiftService
     {
         $alreadyWorked = $this->helper->workerDailyCheck($request);
         if($alreadyWorked) {
-            $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
+            $clockOut = Carbon::parse($alreadyWorked->created_at)->addHours(8)->format('H:i');
 
             if(strtotime($clockOut) <= strtotime(Carbon::now()->format('H:i'))){
-                if($clockOut == '00:01'){
-                    $clockOut = '24:00';
-                }
-                $alreadyWorked->clock_out = $clockOut;
+                $alreadyWorked->clock_out = Carbon::now()->format('H:i');
                 $alreadyWorked->save();
                 return ['clock_out' => true];
             }

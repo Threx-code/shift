@@ -235,7 +235,7 @@ class Helper
         $userWorkTime = $this->startAndClosingTime($userId);
         if($userWorkTime) {
             $clockInHour = explode(':00', Carbon::parse($userWorkTime->start_date)->format('H:i:s'));
-            $clockOutHour = explode(':01', Carbon::parse($userWorkTime->end_date)->format('H:i:s'));
+            $clockOutHour = explode(':00', Carbon::parse($userWorkTime->end_date)->format('H:i:s'));
             if ($currentTime >= strtotime($clockInHour[0]) && $currentTime <= strtotime($clockOutHour[0])) {
                 $canWork = true;
             }
