@@ -23,6 +23,7 @@ Route::middleware([])->name('api')
     ->prefix('worker/shift')
     ->group(function(){
         Route::post('manager', [WorkerShiftController::class, 'shiftManager'])->name('.manager');
+        Route::post('daily-roster', [WorkerShiftController::class, 'dailyRoster'])->name('.daily-roster');
         Route::post("clock-in", [WorkerShiftController::class, 'workerClockIn'])->name('.clock-in');
         Route::post('clock-out', [WorkerShiftController::class, 'workerClockOut'])->name('.clock-out');
         Route::post('work-days', [WorkerShiftController::class, 'listOfAllShiftForAWorker'])->name('.work-days');

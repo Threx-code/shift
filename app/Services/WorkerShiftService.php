@@ -90,4 +90,22 @@ class WorkerShiftService
 
     }
 
+    /**
+     * @param $request
+     * @param array $shifts
+     * @return string[]|null
+     */
+    public function dailyRoster($request, array $shifts = []): ?array
+    {
+        $shift = ['status' => 'A shift has not been set for you today. Contact your manager'];
+        if(in_array(Carbon::now()->format('l'), ['Sunday', 'Saturday'])){
+            $shift = ['status' => 'You are off today'];
+        }
+        $dailyRoster = $this->helper->startAndClosingTime($request->user_id);
+        if($dailyRoster){
+            $shift = ['status' => "This user shift has been created for {$this->helper->parseDate($dailyRoster->start_date)} to  {$this->helper->parseDate($dailyRoster->end_date)}"];
+        }
+        return $shift;
+    }
+
 }

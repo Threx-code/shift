@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DailyRosterRequest;
 use App\Http\Requests\WorkerRequest;
 use App\Validators\Request\WorkerAllShiftValidator;
 use App\Validators\Request\WorkerClockInValidator;
@@ -21,8 +22,16 @@ class WorkerShiftController extends Controller
      */
     public function shiftManager(WorkerRequest $request): JsonResponse
     {
-        $clockedIn = $this->workerShiftRepository->shiftManager($request);
-            return response()->json($clockedIn);
+            return response()->json($this->workerShiftRepository->shiftManager($request));
+    }
+
+    /**
+     * @param DailyRosterRequest $request
+     * @return JsonResponse
+     */
+    public function dailyRoster(DailyRosterRequest $request): JsonResponse
+    {
+        return response()->json($this->workerShiftRepository->dailyRoster($request));
     }
 
     /**
@@ -64,4 +73,6 @@ class WorkerShiftController extends Controller
         }
         return response()->json($workerShifts);
     }
+
+
 }

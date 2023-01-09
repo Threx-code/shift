@@ -17,8 +17,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('manager_id');
-            $table->string('clock_in', 10);
-            $table->string('clock_out', 10);
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->timestamps();

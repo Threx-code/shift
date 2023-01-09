@@ -49,4 +49,13 @@ class WorkerShiftRepository implements WorkerShiftInterface
     {
         return $this->workerShiftService->shiftManager($request);
     }
+
+    /**
+     * @param $request
+     * @return bool[]|string[]|null
+     */
+    public function dailyRoster($request)
+    {
+        return $this->workerShiftService->dailyRoster($request);
+    }
 }

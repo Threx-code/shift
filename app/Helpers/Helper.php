@@ -188,22 +188,39 @@ class Helper
         $shift = $this->shiftTime($request->shift);
         $this->shiftManager->user_id = $request->user_id;
         $this->shiftManager->manager_id = $request->manager_id;
-        $this->shiftManager->clock_in = $shift[0];
-        $this->shiftManager->clock_out = $shift[1];
         $this->shiftManager->start_date = $request->start_date . ' '. $this->shiftToTime($shift[0]);
         $this->shiftManager->end_date = $endDate . ' ' . $this->shiftToTime($shift[1]);
         $this->shiftManager->save();
-
         return ['shift_created' => true];
     }
 
+    /**
+     * @param $request
+     * @return string[]|void
+     */
     public function shiftAlreadyCreated($request)
     {
         $endDate = $this->sevenDays($request->start_date, $request->end_date);
         $shift = $this->shiftManager::where('user_id', $request->user_id)->whereBetween('start_date', [$request->start_date, $endDate])->first();
         if($shift){
-            return ['status' => "This user shift has been created for {$this->parseDate($shift->start_date)} to  {$this->parseDate($shift->end_date)}"];
+            return ['status' => "This user shift has already been created for {$this->parseDate($shift->start_date)} to  {$this->parseDate($shift->end_date)}"];
         }
+    }
+
+    /**
+     * @param $userId
+     * @return mixed
+     */
+    public function startAndClosingTime($userId): mixed
+    {
+        $startDate = Carbon::now()->format('Y-m-d');
+        $endDate = Carbon::now()->addDays(7)->format('Y-m-d');
+
+        return $this->shiftManager::where('user_id', $userId)
+            ->where(function($query) use($startDate, $endDate){
+                $query->whereBetween('start_date', [$startDate, $endDate])->orWhereBetween('end_date', [$startDate, $endDate]);
+            })->first();
+
     }
 
 }
