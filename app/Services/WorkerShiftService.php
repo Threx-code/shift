@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\DailyWorkRound;
 use App\Helpers\Helper;
 use App\Models\ShiftManager;
 use Carbon\Carbon;
@@ -20,22 +21,23 @@ class WorkerShiftService
      */
     public function workerClockIn($request): ?array
     {
+        $userCanWork = $this->helper->workWithinTimeFrame($request->user_id);
+        if(!$userCanWork){
+            $message = "You cannot working this time contact your manager";
+            RepositoryValidator::error($message);
+        }
+
         $alreadyWorked = $this->helper->workerDailyCheck($request);
         if($alreadyWorked) {
-            if ($alreadyWorked->clock_out) {
-                $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$alreadyWorked->clock_out}";
-                RepositoryValidator::dailyWorkerLimit($message);
-            }
-            if ($alreadyWorked->clock_in) {
-                $clockOut = Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
-                $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$clockOut}";
-                RepositoryValidator::dailyWorkerLimit($message);
-            }
+            $clockOut = $alreadyWorked->clock_out ??  Carbon::parse($alreadyWorked->clock_in)->addHours(8)->format('H:i');
+            $message = "You have already clocked in {$alreadyWorked->clock_in}, your clock out is {$clockOut}";
+            RepositoryValidator::dailyWorkerLimit($message);
         }
 
         if($this->helper->workerClockIn($request)){
             return ['clock_in' => true];
         }
+
         $message = 'Unable to clock in';
         RepositoryValidator::dailyWorkerLimit($message);
 
@@ -80,7 +82,12 @@ class WorkerShiftService
         };
     }
 
-    public function shiftManager($request, $shifts = [])
+    /**
+     * @param $request
+     * @param array $shifts
+     * @return bool[]|string[]|null
+     */
+    public function shiftManager($request, array $shifts = []): ?array
     {
         $shifts = $this->helper->shiftAlreadyCreated($request);
         if(!$shifts){

@@ -32,6 +32,7 @@ class Helper
      */
     public function clockInTime(): array
     {
+
         $clockInHour = strtotime(Carbon::now()->format('H:i'));
         foreach(DailyWorkRound::WORKSHIFT as $key => $workRound){
             if($clockInHour >= strtotime($workRound[0]) && $clockInHour <=  strtotime($workRound[1])){
@@ -222,5 +223,26 @@ class Helper
             })->first();
 
     }
+
+    /**
+     * @param $userId
+     * @param bool $canWork
+     * @return bool|mixed
+     */
+    public function workWithinTimeFrame($userId, bool $canWork = false): mixed
+    {
+        $currentTime = strtotime(Carbon::now()->format('H:i'));
+        $userWorkTime = $this->startAndClosingTime($userId);
+        if($userWorkTime) {
+            $clockInHour = explode(':00', Carbon::parse($userWorkTime->start_date)->format('H:i:s'));
+            $clockOutHour = explode(':01', Carbon::parse($userWorkTime->end_date)->format('H:i:s'));
+            if ($currentTime >= strtotime($clockInHour[0]) && $currentTime <= strtotime($clockOutHour[0])) {
+                $canWork = true;
+            }
+        }
+        return $canWork;
+    }
+
+
 
 }
