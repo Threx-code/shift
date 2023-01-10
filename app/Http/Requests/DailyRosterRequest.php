@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Validators\ValidatorResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -13,25 +14,27 @@ class DailyRosterRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
+     * @return string[][]
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'user_id' => ['required', 'integer'],
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    /**
+     * @param Validator $validator
+     * @return void
+     */
+    public function failedValidation(Validator $validator): void
     {
-        throw new HttpResponseException(response()->json($validator->errors(), 422));
+        ValidatorResponse::validationErrors($validator->errors());
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Validators\ValidatorResponse;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
@@ -14,17 +15,15 @@ class WorkerRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
+     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'start_date' => ['required', 'date', 'before:end_date'],
@@ -35,8 +34,12 @@ class WorkerRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator)
+    /**
+     * @param Validator $validator
+     * @return void
+     */
+    public function failedValidation(Validator $validator): void
     {
-        throw new HttpResponseException(response()->json($validator->errors(), 422));
+        ValidatorResponse::validationErrors($validator->errors());
     }
 }

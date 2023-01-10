@@ -8,30 +8,32 @@ class RepositoryValidator
 {
 
     /**
-     * @return mixed
+     * @param $message
+     * @return void
      */
-    public static function dataAlreadyExist($message): mixed
+    public static function dataAlreadyExist($message): void
     {
         $errorResponse = response()->json([
             'error' => 'insertion error',
             'message' => $message,
         ], 409);
 
-        throw new HttpResponseException($errorResponse);
+        self::throw($errorResponse);
     }
 
 
     /**
-     * @return mixed
+     * @param $time
+     * @return void
      */
-    public static function dailyWorkerClockOut($time): mixed
+    public static function dailyWorkerClockOut($time): void
     {
         $errorResponse = response()->json([
             'error' => 'Clock Out Time',
             'message' => 'Your clock out time is ' . $time,
         ], 404);
 
-        throw new HttpResponseException($errorResponse);
+        self::throw($errorResponse);
     }
 
 
@@ -46,7 +48,7 @@ class RepositoryValidator
             'message' => $message,
         ], 422);
 
-        throw new HttpResponseException($errorResponse);
+        self::throw($errorResponse);
     }
 
 
@@ -61,7 +63,7 @@ class RepositoryValidator
             'message' => $message,
         ], 422);
 
-        throw new HttpResponseException($errorResponse);
+        self::throw($errorResponse);
     }
 
     /**
@@ -71,6 +73,15 @@ class RepositoryValidator
     public static function sanitizeString($var): mixed
     {
         return filter_var(strip_tags(stripslashes($var)), FILTER_SANITIZE_STRING);
+    }
+
+    /**
+     * @param $error
+     * @return mixed
+     */
+    public static function throw($error): mixed
+    {
+        throw new HttpResponseException($error);
     }
 
 

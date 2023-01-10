@@ -7,15 +7,15 @@ class ValidatorResponse
 {
     /**
      * @param $error
-     * @return mixed
+     * @return void
      */
-    public static function validationErrors($error): mixed
+    public static function validationErrors($error): void
     {
         $errorResponse = response()->json([
             'error' => 'The given data was invalid',
             'message' => $error->first(),
         ], 422);
 
-        throw new HttpResponseException($errorResponse);
+        RepositoryValidator::throw($errorResponse);
     }
 }

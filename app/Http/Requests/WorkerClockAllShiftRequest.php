@@ -2,7 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Validators\ValidatorResponse;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\RequiredIf;
 
 class WorkerClockAllShiftRequest extends FormRequest
 {
@@ -11,20 +16,41 @@ class WorkerClockAllShiftRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
+     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
+        $type = request()->input('type');
         return [
-            //
+            'user_id' => ['required', 'integer'],
+            'type' => ['required',  Rule::in(['daily', 'weekly', 'monthly', 'yearly'])],
+            'start_date' => ['nullable', new RequiredIf(function () use($type) {
+                return $type == 'weekly';
+            }), 'before:end_date', 'date'],
+            'end_date' => ['nullable', new RequiredIf(function () use($type) {
+                return $type == 'weekly';
+            }), 'after:start_date', 'date'],
+            'month' => ['nullable', new RequiredIf(function () use ($type) {
+                return $type == 'monthly';
+            }), 'integer'],
+            'year' => ['nullable', new RequiredIf(function () use ($type) {
+                return $type == 'yearly';
+            }), 'integer']
         ];
+    }
+
+    /**
+     * @param Validator $validator
+     * @return void
+     */
+    public function failedValidation(Validator $validator): void
+    {
+        ValidatorResponse::validationErrors($validator->errors());
     }
 }

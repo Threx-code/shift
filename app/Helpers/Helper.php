@@ -8,7 +8,9 @@ use Carbon\Carbon;
 
 class Helper
 {
-
+    /**
+     * @var ShiftManager
+     */
     private ShiftManager $shiftManager;
 
     public function __construct(){
@@ -99,10 +101,12 @@ class Helper
 
 
     /**
+     * @param $start_date
      * @param $end_date
+     * @param int $deter
      * @return string
      */
-    public function sevenDays($start_date, $end_date, $deter = 0): string
+    public function sevenDays($start_date, $end_date, int $deter = 0): string
     {
         $sevenDays = 60 * 60 * 24 * (6 + $deter);
         return date('Y-m-d', (strtotime($end_date) - ((strtotime($end_date) - strtotime($start_date)) - $sevenDays)));
@@ -242,7 +246,5 @@ class Helper
         }
         return $canWork;
     }
-
-
 
 }

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DailyRosterRequest;
+use App\Http\Requests\WorkerClockAllShiftRequest;
+use App\Http\Requests\WorkerClockInRequest;
+use App\Http\Requests\WorkerClockOutRequest;
 use App\Http\Requests\WorkerRequest;
-use App\Validators\Request\WorkerAllShiftValidator;
-use App\Validators\Request\WorkerClockInValidator;
-use App\Validators\Request\WorkerClockOutValidator;
 use Illuminate\Http\Request;
 use App\Contracts\WorkerShiftInterface;
 use Illuminate\Http\JsonResponse;
@@ -35,43 +35,31 @@ class WorkerShiftController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param WorkerClockInRequest $request
      * @return JsonResponse
      */
-    public function workerClockIn(Request $request): JsonResponse
+    public function workerClockIn(WorkerClockInRequest $request): JsonResponse
     {
-        if(WorkerClockInValidator::validate($request)) {
-            $clockedIn = $this->workerShiftRepository->workerClockIn($request);
-            return response()->json($clockedIn);
-        }
-        return response()->json();
+        return response()->json($this->workerShiftRepository->workerClockIn($request));
     }
 
 
     /**
-     * @param Request $request
+     * @param WorkerClockOutRequest $request
      * @return JsonResponse
      */
-    public function workerClockOut(Request $request): JsonResponse
+    public function workerClockOut(WorkerClockOutRequest $request): JsonResponse
     {
-        if(WorkerClockOutValidator::validate($request)) {
-            $clockedOUt = $this->workerShiftRepository->workerClockOut($request);
-            return response()->json($clockedOUt);
-        }
-        return response()->json();
+        return response()->json($this->workerShiftRepository->workerClockOut($request));
     }
 
     /**
-     * @param Request $request
-     * @param array $workerShifts
+     * @param WorkerClockAllShiftRequest $request
      * @return JsonResponse
      */
-    public function listOfAllShiftForAWorker(Request $request, array $workerShifts = []): JsonResponse
+    public function listOfAllShiftForAWorker(WorkerClockAllShiftRequest $request): JsonResponse
     {
-        if(WorkerAllShiftValidator::validate($request)) {
-            $workerShifts = $this->workerShiftRepository->listOfAllShiftForAWorker($request);
-        }
-        return response()->json($workerShifts);
+        return response()->json($this->workerShiftRepository->listOfAllShiftForAWorker($request));
     }
 
 

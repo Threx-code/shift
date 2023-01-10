@@ -4,9 +4,33 @@ namespace App\Contracts;
 
 interface WorkerShiftInterface
 {
-    public function workerClockIn($request);
-    public function workerClockOut($request);
-    public function listOfAllShiftForAWorker($request);
-    public function shiftManager($request);
-    public function dailyRoster($request);
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function workerClockIn($request): mixed;
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function workerClockOut($request): mixed;
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function listOfAllShiftForAWorker($request): mixed;
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function shiftManager($request): mixed;
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function dailyRoster($request): mixed;
 }

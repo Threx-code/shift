@@ -10,16 +10,20 @@ use App\Validators\RepositoryValidator;
 
 class WorkerShiftService
 {
+    /**
+     * @var Helper
+     */
     private Helper $helper;
+
     public function __construct(){
         $this->helper = new Helper();
     }
 
     /**
      * @param $request
-     * @return bool[]|null
+     * @return bool[]|void
      */
-    public function workerClockIn($request): ?array
+    public function workerClockIn($request)
     {
 
         $alreadyWorked = $this->helper->workerDailyCheck($request);

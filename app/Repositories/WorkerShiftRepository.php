@@ -10,6 +10,9 @@ use JsonException;
 
 class WorkerShiftRepository implements WorkerShiftInterface
 {
+    /**
+     * @var WorkerShiftService
+     */
     private WorkerShiftService $workerShiftService;
 
     public function __construct()
@@ -45,7 +48,11 @@ class WorkerShiftRepository implements WorkerShiftInterface
         return $this->workerShiftService->listOfAllShiftForAWorker($request);
     }
 
-    public function shiftManager($request)
+    /**
+     * @param $request
+     * @return bool[]|string[]|null
+     */
+    public function shiftManager($request): ?array
     {
         return $this->workerShiftService->shiftManager($request);
     }
@@ -54,7 +61,7 @@ class WorkerShiftRepository implements WorkerShiftInterface
      * @param $request
      * @return bool[]|string[]|null
      */
-    public function dailyRoster($request)
+    public function dailyRoster($request): ?array
     {
         return $this->workerShiftService->dailyRoster($request);
     }

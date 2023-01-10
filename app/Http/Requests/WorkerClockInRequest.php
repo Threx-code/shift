@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Validators\ValidatorResponse;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class WorkerClockInRequest extends FormRequest
@@ -11,20 +13,27 @@ class WorkerClockInRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
+     * @return string[][]
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            //
+            'user_id' => ['required', 'integer'],
         ];
+    }
+
+    /**
+     * @param Validator $validator
+     * @return void
+     */
+    public function failedValidation(Validator $validator): void
+    {
+        ValidatorResponse::validationErrors($validator->errors());
     }
 }
